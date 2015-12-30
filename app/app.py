@@ -2,25 +2,24 @@ from collections import OrderedDict
 import mcstatus, yaml, time, threading
 from bottle import route, run, template, static_file, error
 
+last_data = None
 data = {}
 json_response = None
 
-with open('config.yml', 'r') as cfg_file:
-    servers_config = yaml.load(cfg_file)
+def update_config():
+    with open('config.yml', 'r') as cfg_file:
+        servers_config = yaml.load(cfg_file)
 
-# c = 0.0
-
-for category in servers_config:
-    print category
-    data[category] = {}
-    for server in servers_config[category]:
-        print "- " + server + ": " + servers_config[category][server]
-        ip = servers_config[category][server]
-        if "/" not in ip:
-            ip += "/25565"
-        status = mcstatus.McServer(ip.split("/")[0], ip.split("/")[1])
-        # c += 1
-        data[category][server] = status
+    for category in servers_config:
+        print category
+        data[category] = {}
+        for server in servers_config[category]:
+            print "- " + server + ": " + servers_config[category][server]
+            ip = servers_config[category][server]
+            if "/" not in ip:
+                ip += "/25565"
+            status = mcstatus.McServer(ip.split("/")[0], ip.split("/")[1])
+            data[category][server] = status
 
 def update_all():
 #    i = 0.0
@@ -65,12 +64,22 @@ def schedule_update():
 
 def schedule_json():
     threading.Timer(1.5, schedule_json).start()
+    global last_data
+    last_data = json_response
     global json_response
     json_response = generate_json()
+
+def schedule_config():
+    threading.Timer(600, schedule_config).start()
+    update_config()
 
 @route('/status')
 def index():
     return json_response
+
+@route('/last')
+def index():
+    return last_data
 
 @route('/')
 def server_static():
@@ -84,10 +93,11 @@ def error404(error):
 def server_static(filename):
     return static_file(filename, root = '..')
 
+schedule_config()
 schedule_update()
 schedule_json()
 
 try:
-    run(host='localhost', port=8080)
+    run(host='127.0.0.1', port=8288)
 except KeyboardInterrupt:
     sys.exit(0)
