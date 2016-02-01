@@ -14,14 +14,14 @@ function populate() {
 				if( data.dead[strings[0]] !== undefined && $.inArray( strings[1], data.dead[strings[0]] ) > -1 ) {
 					
 					if( chances[ chancer ] == 5 ) {
-						var notification = new Notification('A server on HC is down!', {
-							icon: 'http://files.enjin.com/109427/Headers/hc-server-dragon-resized.png',
+						var notification = new Notification('A server on is down!', {
+							//icon: 'http://path.to.com/image.png',
 							body: "Hey! " + strings[1] + " is down on the " + strings[0] + " machine!",
 						});
 					}
 					if( (chances[ chancer ] % 100) == 0 ) {
 						var notification = new Notification('It\'s been a while!!', {
-							icon: 'http://files.enjin.com/109427/Headers/hc-server-dragon-resized.png',
+							//icon: 'http://path.to.com/image.png',
 							body: "Hey! " + strings[1] + " is down on the " + strings[0] + " machine!",
 						});
 					}
